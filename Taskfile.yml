@@ -1,0 +1,111 @@
+version: '3'
+
+vars:
+  BINARY_NAME: xrd2crd
+  BUILD_DIR: build
+  CMD_DIR: cmd/xrd2crd
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+    silent: true
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+      - rm -rf dist/
+
+  build:
+    desc: Build the binary
+    deps: [clean]
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}} ./{{.CMD_DIR}}
+    sources:
+      - ./**/*.go
+    generates:
+      - "{{.BUILD_DIR}}/{{.BINARY_NAME}}"
+
+  install:
+    desc: Install the binary to $GOPATH/bin
+    cmds:
+      - go install ./{{.CMD_DIR}}
+
+  run:
+    desc: Run the application for development
+    cmds:
+      - go run ./{{.CMD_DIR}} {{.CLI_ARGS}}
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -v ./...
+
+  test-coverage:
+    desc: Run tests with coverage
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go test -v -coverprofile={{.BUILD_DIR}}/coverage.out ./...
+      - go tool cover -html={{.BUILD_DIR}}/coverage.out -o {{.BUILD_DIR}}/coverage.html
+    generates:
+      - "{{.BUILD_DIR}}/coverage.out"
+      - "{{.BUILD_DIR}}/coverage.html"
+
+  lint:
+    desc: Run linters
+    cmds:
+      - golangci-lint run
+
+  fmt:
+    desc: Format code
+    cmds:
+      - go fmt ./...
+
+  tidy:
+    desc: Tidy and verify dependencies
+    cmds:
+      - go mod tidy
+      - go mod verify
+
+  update-deps:
+    desc: Update dependencies to latest versions
+    cmds:
+      - go get -u ./...
+      - task: tidy
+
+  setup-dev:
+    desc: Set up development environment
+    cmds:
+      - go install github.com/golangci/golint/cmd/golangci-lint@latest
+      - go install github.com/goreleaser/goreleaser@latest
+      - task: tidy
+
+  check:
+    desc: Run all checks (lint, test, build)
+    cmds:
+      - task: lint
+      - task: test
+      - task: build
+
+  example:
+    desc: Run the tool with an example XRD
+    dir: examples
+    cmds:
+      - ../{{.BUILD_DIR}}/{{.BINARY_NAME}} example.yaml
+
+  release-snapshot:
+    desc: Create a snapshot release for testing
+    cmds:
+      - goreleaser release --snapshot --clean
+
+  release-check:
+    desc: Check if release configuration is valid
+    cmds:
+      - goreleaser check
+
+  release-local:
+    desc: Build release binaries locally without publishing
+    cmds:
+      - goreleaser build --snapshot --clean 
