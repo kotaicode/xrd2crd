@@ -20,7 +20,7 @@ When working with Crossplane, CompositeResourceDefinitions (XRDs) are used to de
 
 ## Prerequisites
 
-- Go 1.21 or higher
+- Go 1.22 or higher
 - Task (task runner) - [Installation guide](https://taskfile.dev/installation/)
 - Dependencies are managed via Go modules
 
@@ -83,6 +83,24 @@ task check
 task example
 ```
 
+### Docker Development
+
+The project includes Docker support for building and running the tool:
+
+```bash
+# Build the Docker image locally
+task docker-build
+
+# Run the tool using Docker
+task docker-run -- --help
+task docker-run -- "xrds/*.yaml"
+
+# For development, you can mount the current directory
+docker run --rm -v $(pwd):/work -w /work ghcr.io/kotaicode/xrd2crd:dev "xrds/*.yaml"
+```
+
+The Docker image is based on Google's distroless base image, resulting in a minimal and secure container that only includes the necessary components to run the tool.
+
 ## Release Workflow
 
 This project uses GoReleaser for building and publishing releases. You can test releases locally or publish them through GitHub Actions.
@@ -130,6 +148,9 @@ This project uses GoReleaser for building and publishing releases. You can test 
    - Create a GitHub release with the binaries
    - Generate checksums
    - Generate a changelog
+   - Build and push Docker images to GitHub Container Registry:
+     - `ghcr.io/kotaicode/xrd2crd:latest`
+     - `ghcr.io/kotaicode/xrd2crd:v1.0.0` (version tag)
 
 4. Verify the Release:
    - Check the GitHub Actions workflow status
@@ -145,7 +166,19 @@ After release, users can install the tool in several ways:
    go install github.com/kotaicode/xrd2crd@latest
    ```
 
-2. Downloading directly from GitHub Releases:
+2. Using Docker:
+   ```bash
+   # Pull the latest version
+   docker pull ghcr.io/kotaicode/xrd2crd:latest
+
+   # Run the tool
+   docker run --rm ghcr.io/kotaicode/xrd2crd:latest --help
+
+   # Process files (mount a directory)
+   docker run --rm -v $(pwd):/work -w /work ghcr.io/kotaicode/xrd2crd:latest "xrds/*.yaml"
+   ```
+
+3. Downloading directly from GitHub Releases:
    - Visit the releases page on GitHub
    - Download the appropriate binary for your platform:
      - Linux: `xrd2crd_Linux_x86_64.tar.gz` or `xrd2crd_Linux_arm64.tar.gz`

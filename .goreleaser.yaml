@@ -43,6 +43,24 @@ git:
   # If not specified, will default to the latest tag
   tag_sort: -version:refname
 
+dockers:
+  - image_templates:
+      - "ghcr.io/kotaicode/xrd2crd:{{ .Version }}"
+      - "ghcr.io/kotaicode/xrd2crd:latest"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title=xrd2crd"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - go.mod
+      - go.sum
+      - cmd/
+      - pkg/
+
 changelog:
   sort: asc
   filters:

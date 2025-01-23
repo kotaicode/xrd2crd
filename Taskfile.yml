@@ -4,6 +4,7 @@ vars:
   BINARY_NAME: xrd2crd
   BUILD_DIR: build
   CMD_DIR: cmd/xrd2crd
+  DOCKER_IMAGE: ghcr.io/kotaicode/xrd2crd
 
 tasks:
   default:
@@ -108,4 +109,14 @@ tasks:
   release-local:
     desc: Build release binaries locally without publishing
     cmds:
-      - goreleaser build --snapshot --clean 
+      - goreleaser build --snapshot --clean
+
+  docker-build:
+    desc: Build Docker image locally
+    cmds:
+      - docker build -t {{.DOCKER_IMAGE}}:dev .
+
+  docker-run:
+    desc: Run the Docker image
+    cmds:
+      - docker run --rm {{.DOCKER_IMAGE}}:dev {{.CLI_ARGS}} 
