@@ -58,7 +58,12 @@ var CLI struct {
 }
 
 // Main is the entry point for the CLI tool
-func Main() {
+func Main(v, c, d string) {
+	// Update version information
+	version = v
+	commit = c
+	date = d
+
 	ctx := kong.Parse(&CLI,
 		kong.Name("xrd2crd"),
 		kong.Description("Converts Crossplane XRDs to Kubernetes CRDs"),

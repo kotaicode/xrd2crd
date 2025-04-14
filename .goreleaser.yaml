@@ -20,9 +20,9 @@ builds:
         goarch: arm64
     ldflags:
       - -s -w
-      - -X github.com/kotaicode/xrd2crd/cmd/xrd2crd.version={{.Version}}
-      - -X github.com/kotaicode/xrd2crd/cmd/xrd2crd.commit={{.Commit}}
-      - -X github.com/kotaicode/xrd2crd/cmd/xrd2crd.date={{.Date}}
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
 
 archives:
   - format: tar.gz
