@@ -1,4 +1,4 @@
-package main
+package xrd2crd
 
 import (
 	"fmt"
@@ -57,7 +57,8 @@ var CLI struct {
 	Version bool         `help:"Show version information" short:"v"`
 }
 
-func main() {
+// Main is the entry point for the CLI tool
+func Main() {
 	ctx := kong.Parse(&CLI,
 		kong.Name("xrd2crd"),
 		kong.Description("Converts Crossplane XRDs to Kubernetes CRDs"),

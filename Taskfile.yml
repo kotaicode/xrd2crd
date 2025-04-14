@@ -3,7 +3,6 @@ version: '3'
 vars:
   BINARY_NAME: xrd2crd
   BUILD_DIR: build
-  CMD_DIR: cmd/xrd2crd
   DOCKER_IMAGE: ghcr.io/kotaicode/xrd2crd
 
 tasks:
@@ -23,7 +22,7 @@ tasks:
     deps: [clean]
     cmds:
       - mkdir -p {{.BUILD_DIR}}
-      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}} ./{{.CMD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}} .
     sources:
       - ./**/*.go
     generates:
@@ -32,12 +31,12 @@ tasks:
   install:
     desc: Install the binary to $GOPATH/bin
     cmds:
-      - go install ./{{.CMD_DIR}}
+      - go install .
 
   run:
     desc: Run the application for development
     cmds:
-      - go run ./{{.CMD_DIR}} {{.CLI_ARGS}}
+      - go run . {{.CLI_ARGS}}
 
   test:
     desc: Run tests
