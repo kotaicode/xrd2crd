@@ -4,7 +4,7 @@ before:
 
 builds:
   - id: xrd2crd
-    main: ./cmd/xrd2crd
+    main: .
     binary: xrd2crd
     env:
       - CGO_ENABLED=0
@@ -20,9 +20,9 @@ builds:
         goarch: arm64
     ldflags:
       - -s -w
-      - -X main.version={{.Version}}
-      - -X main.commit={{.Commit}}
-      - -X main.date={{.Date}}
+      - -X github.com/kotaicode/xrd2crd/cmd/xrd2crd.version={{.Version}}
+      - -X github.com/kotaicode/xrd2crd/cmd/xrd2crd.commit={{.Commit}}
+      - -X github.com/kotaicode/xrd2crd/cmd/xrd2crd.date={{.Date}}
 
 archives:
   - format: tar.gz
