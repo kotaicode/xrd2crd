@@ -51,7 +51,7 @@ func (o *OutputFormat) Decode(ctx *kong.DecodeContext) error {
 
 // CLI represents the command-line interface structure
 var CLI struct {
-	Pattern string       `arg:"" help:"File path or glob pattern for XRD files (e.g., 'xrd.yaml' or 'xrds/*.yaml')" type:"path"`
+	Pattern string       `arg:"" optional:"" help:"File path or glob pattern for XRD files (e.g., 'xrd.yaml' or 'xrds/*.yaml')" type:"path"`
 	Output  OutputFormat `help:"Output format and destination. Can be 'yaml', 'json', or 'path=/path/to/file'" short:"o"`
 	Stdout  bool         `help:"Force output to stdout even if output file is specified" short:"s"`
 	Version bool         `help:"Show version information" short:"v"`
@@ -70,6 +70,11 @@ func main() {
 	if CLI.Version {
 		fmt.Printf("xrd2crd %s (%s) - %s\n", version, commit, date)
 		os.Exit(0)
+	}
+
+	if CLI.Pattern == "" {
+		fmt.Println("Error: pattern argument is required when not using --version")
+		os.Exit(1)
 	}
 
 	matches, err := filepath.Glob(CLI.Pattern)
