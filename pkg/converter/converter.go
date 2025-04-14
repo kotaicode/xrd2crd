@@ -69,6 +69,65 @@ func convertXRDVersionsToCRDVersions(xrdVersions []crossplanev1.CompositeResourc
 			}
 		}
 		crdVersion.Schema.OpenAPIV3Schema.Required = []string{"spec", "apiVersion", "kind", "metadata"}
+
+		// Initialize the schema properties if nil
+		if crdVersion.Schema.OpenAPIV3Schema.Properties == nil {
+			crdVersion.Schema.OpenAPIV3Schema.Properties = make(map[string]apiextensionsv1.JSONSchemaProps)
+		}
+
+		// Initialize spec properties
+		specProps := crdVersion.Schema.OpenAPIV3Schema.Properties["spec"]
+		if specProps.Properties == nil {
+			specProps.Properties = make(map[string]apiextensionsv1.JSONSchemaProps)
+		}
+
+		// Add Crossplane-specific fields
+		specProps.Properties["compositeDeletePolicy"] = apiextensionsv1.JSONSchemaProps{
+			Type: "string",
+			Enum: []apiextensionsv1.JSON{
+				{Raw: []byte(`"Background"`)},
+				{Raw: []byte(`"Foreground"`)},
+			},
+		}
+
+		specProps.Properties["compositionRef"] = apiextensionsv1.JSONSchemaProps{
+			Type: "object",
+			Properties: map[string]apiextensionsv1.JSONSchemaProps{
+				"name": {
+					Type: "string",
+				},
+			},
+		}
+
+		specProps.Properties["compositionSelector"] = apiextensionsv1.JSONSchemaProps{
+			Type: "object",
+			Properties: map[string]apiextensionsv1.JSONSchemaProps{
+				"matchLabels": {
+					Type: "object",
+					AdditionalProperties: &apiextensionsv1.JSONSchemaPropsOrBool{
+						Schema: &apiextensionsv1.JSONSchemaProps{
+							Type: "string",
+						},
+					},
+				},
+			},
+		}
+
+		specProps.Properties["writeConnectionSecretToRef"] = apiextensionsv1.JSONSchemaProps{
+			Type: "object",
+			Properties: map[string]apiextensionsv1.JSONSchemaProps{
+				"name": {
+					Type: "string",
+				},
+				"namespace": {
+					Type: "string",
+				},
+			},
+		}
+
+		// Update the spec properties in the schema
+		crdVersion.Schema.OpenAPIV3Schema.Properties["spec"] = specProps
+
 		crdVersions = append(crdVersions, crdVersion)
 	}
 	return crdVersions
