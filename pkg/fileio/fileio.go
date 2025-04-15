@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	crossplanev1 "github.com/crossplane/crossplane/apis/apiextensions/v1"
@@ -74,6 +75,14 @@ func WriteToFile(crds []*apiextensionsv1.CustomResourceDefinition, filePath stri
 		}
 		// Join documents with proper YAML document separator
 		content = []byte(strings.Join(yamlDocs, "\n---\n"))
+	}
+
+	// Create output directory if it doesn't exist
+	outputDir := filepath.Dir(filePath)
+	if outputDir != "" {
+		if err := os.MkdirAll(outputDir, 0755); err != nil {
+			return fmt.Errorf("failed to create output directory %s: %w", outputDir, err)
+		}
 	}
 
 	if err := os.WriteFile(filePath, content, 0644); err != nil {

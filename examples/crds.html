@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRD Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --sidebar-bg: #2d2d2d;
+            --border-color: #404040;
+            --hover-color: #3d3d3d;
+            --property-bg: #2d2d2d;
+            --example-bg: #2d2d2d;
+        }
+        :root[data-theme="light"] {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --sidebar-bg: #f8f9fa;
+            --border-color: #ddd;
+            --hover-color: #e9ecef;
+            --property-bg: #f8f9fa;
+            --example-bg: #f8f9fa;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar-bg);
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+            z-index: 1;
+            transition: width 0.3s ease;
+        }
+        .sidebar.collapsed {
+            width: 50px;
+        }
+        .sidebar.collapsed .sidebar-content {
+            display: none;
+        }
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2;
+            background: var(--sidebar-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px;
+            cursor: pointer;
+            transition: left 0.3s ease;
+            color: var(--text-color);
+        }
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 2;
+            background: var(--sidebar-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        .sidebar-toggle:hover, .theme-toggle:hover {
+            background: var(--hover-color);
+        }
+        .content {
+            flex: 1;
+            margin-left: 290px;
+            padding: 20px;
+            max-width: 1200px;
+            position: relative;
+            transition: margin-left 0.3s ease;
+        }
+        .content.expanded {
+            margin-left: 90px;
+        }
+        .sidebar h2 {
+            margin-top: 0;
+            margin-left: 40px;
+            font-size: 18px;
+            color: var(--text-color);
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar li {
+            margin: 5px 0;
+        }
+        .sidebar a {
+            color: var(--text-color);
+            text-decoration: none;
+            display: block;
+            padding: 5px 0;
+        }
+        .sidebar a:hover {
+            color: #007bff;
+        }
+        .crd {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        .crd-header {
+            margin-bottom: 20px;
+        }
+        .crd-title {
+            font-size: 24px;
+            margin: 0;
+            color: var(--text-color);
+        }
+        .crd-meta {
+            color: #666;
+            font-size: 14px;
+        }
+        .property {
+            margin: 10px 0;
+            padding: 10px;
+            background: var(--property-bg);
+            border-radius: 4px;
+        }
+        .property-header {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .property-header:hover {
+            background: var(--hover-color);
+        }
+        .property-name {
+            font-weight: bold;
+            color: var(--text-color);
+            flex: 1;
+        }
+        .property-type {
+            color: #666;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .property-description {
+            margin-top: 5px;
+            color: #444;
+        }
+        .required {
+            color: #dc3545;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .enum-values {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        .example {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--example-bg);
+            border-radius: 4px;
+        }
+        .nested-properties {
+            margin-left: 20px;
+            border-left: 2px solid var(--border-color);
+            padding-left: 20px;
+            display: none;
+        }
+        .nested-properties.expanded {
+            display: block;
+        }
+        pre {
+            margin: 0;
+            padding: 0;
+            background: none;
+        }
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 14px;
+        }
+        .toggle-icon {
+            margin-right: 10px;
+            color: #666;
+            transition: transform 0.2s;
+        }
+        .toggle-icon.expanded {
+            transform: rotate(90deg);
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .section-header:hover {
+            color: #007bff;
+        }
+        .section-toggle-icon {
+            margin-right: 10px;
+            color: #666;
+            transition: transform 0.2s;
+        }
+        .section-toggle-icon.expanded {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+        <div class="sidebar-content">
+            <h2>CRDs</h2>
+            <ul>
+                
+                <li><a href="#PostgreSQLInstance">PostgreSQLInstance</a></li>
+                
+                <li><a href="#MySQLInstance">MySQLInstance</a></li>
+                
+                <li><a href="#MongoDBInstance">MongoDBInstance</a></li>
+                
+            </ul>
+        </div>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+    <div class="content" id="content">
+        <h1>CRD Documentation</h1>
+        
+        <div class="crd" id="PostgreSQLInstance">
+            <div class="crd-header">
+                <h2 class="crd-title">PostgreSQLInstance</h2>
+                <div class="crd-meta">
+                    <p>Group: database.example.org</p>
+                    
+                        
+                            <p>Version: v1alpha1</p>
+                        
+                    
+                    <p>Scope: Namespaced</p>
+                </div>
+            </div>
+
+            <h3 class="section-header">
+                <span class="section-toggle-icon">▶</span>
+                Properties
+            </h3>
+            
+                
+                    
+                    
+                        
+                        
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">spec</div>
+            <div class="property-type">Type: object</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">compositeDeletePolicy</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        <div class="enum-values">
+            Allowed values: Background, Foreground
+        </div>
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">compositionRef</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">name</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">compositionSelector</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">matchLabels</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">parameters</div>
+            <div class="property-type">Type: object</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">storageGB</div>
+            <div class="property-type">Type: integer</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">version</div>
+            <div class="property-type">Type: string</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        <div class="enum-values">
+            Allowed values: 11, 12, 13, 14
+        </div>
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">writeConnectionSecretToRef</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">name</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">namespace</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+
+                    
+                
+            
+
+            <h3 class="section-header">
+                <span class="section-toggle-icon">▶</span>
+                Example
+            </h3>
+            <div class="example" style="display: none;">
+                <pre><code class="language-yaml">apiVersion: database.example.org/v1alpha1
+kind: PostgreSQLInstance
+metadata:
+  name: example
+spec:
+  spec:
+    parameters:
+      version: 11
+      storageGB: 1
+    compositeDeletePolicy: Background
+    compositionRef:
+      name: &#34;example&#34;
+    compositionSelector:
+      matchLabels: {}
+    writeConnectionSecretToRef:
+      name: &#34;example&#34;
+      namespace: &#34;example&#34;
+</code></pre>
+            </div>
+        </div>
+        
+        <div class="crd" id="MySQLInstance">
+            <div class="crd-header">
+                <h2 class="crd-title">MySQLInstance</h2>
+                <div class="crd-meta">
+                    <p>Group: database.example.org</p>
+                    
+                        
+                            <p>Version: v1alpha1</p>
+                        
+                    
+                    <p>Scope: Namespaced</p>
+                </div>
+            </div>
+
+            <h3 class="section-header">
+                <span class="section-toggle-icon">▶</span>
+                Properties
+            </h3>
+            
+                
+                    
+                    
+                        
+                        
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">spec</div>
+            <div class="property-type">Type: object</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">compositeDeletePolicy</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        <div class="enum-values">
+            Allowed values: Background, Foreground
+        </div>
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">compositionRef</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">name</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">compositionSelector</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">matchLabels</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">parameters</div>
+            <div class="property-type">Type: object</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">engine</div>
+            <div class="property-type">Type: string</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        <div class="enum-values">
+            Allowed values: InnoDB, MyISAM
+        </div>
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">storageGB</div>
+            <div class="property-type">Type: integer</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">version</div>
+            <div class="property-type">Type: string</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        <div class="enum-values">
+            Allowed values: 5.7, 8.0
+        </div>
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">writeConnectionSecretToRef</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">name</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">namespace</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+
+                    
+                
+            
+
+            <h3 class="section-header">
+                <span class="section-toggle-icon">▶</span>
+                Example
+            </h3>
+            <div class="example" style="display: none;">
+                <pre><code class="language-yaml">apiVersion: database.example.org/v1alpha1
+kind: MySQLInstance
+metadata:
+  name: example
+spec:
+  spec:
+    compositionSelector:
+      matchLabels: {}
+    writeConnectionSecretToRef:
+      name: &#34;example&#34;
+      namespace: &#34;example&#34;
+    parameters:
+      engine: InnoDB
+      storageGB: 1
+      version: 5.7
+    compositeDeletePolicy: Background
+    compositionRef:
+      name: &#34;example&#34;
+</code></pre>
+            </div>
+        </div>
+        
+        <div class="crd" id="MongoDBInstance">
+            <div class="crd-header">
+                <h2 class="crd-title">MongoDBInstance</h2>
+                <div class="crd-meta">
+                    <p>Group: database.example.org</p>
+                    
+                        
+                            <p>Version: v1alpha1</p>
+                        
+                    
+                    <p>Scope: Namespaced</p>
+                </div>
+            </div>
+
+            <h3 class="section-header">
+                <span class="section-toggle-icon">▶</span>
+                Properties
+            </h3>
+            
+                
+                    
+                    
+                        
+                        
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">spec</div>
+            <div class="property-type">Type: object</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">compositeDeletePolicy</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        <div class="enum-values">
+            Allowed values: Background, Foreground
+        </div>
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">compositionRef</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">name</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">compositionSelector</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">matchLabels</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">parameters</div>
+            <div class="property-type">Type: object</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">replicas</div>
+            <div class="property-type">Type: integer</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">storageGB</div>
+            <div class="property-type">Type: integer</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">version</div>
+            <div class="property-type">Type: string</div>
+            
+            <span class="required">(Required)</span>
+            
+        </div>
+        
+        
+        <div class="enum-values">
+            Allowed values: 4.4, 5.0, 6.0
+        </div>
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon">▶</span>
+            
+            <div class="property-name">writeConnectionSecretToRef</div>
+            <div class="property-type">Type: object</div>
+            
+        </div>
+        
+        
+        
+        <div class="nested-properties">
+            
+            
+    
+    
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">name</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+    <div class="property">
+        <div class="property-header">
+            
+            <span class="toggle-icon" style="visibility: hidden;">▶</span>
+            
+            <div class="property-name">namespace</div>
+            <div class="property-type">Type: string</div>
+            
+        </div>
+        
+        
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+
+        </div>
+        
+    </div>
+    
+
+                    
+                
+            
+
+            <h3 class="section-header">
+                <span class="section-toggle-icon">▶</span>
+                Example
+            </h3>
+            <div class="example" style="display: none;">
+                <pre><code class="language-yaml">apiVersion: database.example.org/v1alpha1
+kind: MongoDBInstance
+metadata:
+  name: example
+spec:
+  spec:
+    parameters:
+      replicas: 1
+      storageGB: 1
+      version: 4.4
+    compositeDeletePolicy: Background
+    compositionRef:
+      name: &#34;example&#34;
+    compositionSelector:
+      matchLabels: {}
+    writeConnectionSecretToRef:
+      name: &#34;example&#34;
+      namespace: &#34;example&#34;
+</code></pre>
+            </div>
+        </div>
+        
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            
+            document.querySelectorAll('pre code').forEach((el) => {
+                hljs.highlightElement(el);
+            });
+
+            
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const toggle = document.getElementById('sidebarToggle');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            toggle.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('expanded');
+            });
+
+            
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'light';
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                themeToggle.textContent = isDark ? '🌙' : '☀️';
+            });
+
+            
+            document.querySelectorAll('.property-header').forEach(header => {
+                const nested = header.nextElementSibling;
+                const icon = header.querySelector('.toggle-icon');
+                
+                
+                if (header.querySelector('.property-name').textContent === 'spec') {
+                    nested.classList.add('expanded');
+                    icon.classList.add('expanded');
+                }
+                
+                header.addEventListener('click', () => {
+                    if (nested && nested.classList.contains('nested-properties')) {
+                        nested.classList.toggle('expanded');
+                        icon.classList.toggle('expanded');
+                    }
+                });
+            });
+
+            
+            document.querySelectorAll('.section-header').forEach(header => {
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('.section-toggle-icon');
+                
+                header.addEventListener('click', () => {
+                    if (content && content.classList.contains('example')) {
+                        const isHidden = content.style.display === 'none';
+                        content.style.display = isHidden ? 'block' : 'none';
+                        icon.classList.toggle('expanded', isHidden);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+ 

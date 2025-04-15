@@ -8,6 +8,7 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/kotaicode/xrd2crd/pkg/converter"
+	"github.com/kotaicode/xrd2crd/pkg/docs"
 	"github.com/kotaicode/xrd2crd/pkg/fileio"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 )
@@ -35,16 +36,19 @@ func (o *OutputFormat) Decode(ctx *kong.DecodeContext) error {
 	// Check for path specification
 	if strings.HasPrefix(value, "path=") {
 		o.Path = strings.TrimPrefix(value, "path=")
-		o.Format = "yaml" // default format for file output
+		// Don't override format if it's already set
+		if o.Format == "" {
+			o.Format = "yaml" // default format for file output
+		}
 		return nil
 	}
 
 	// Handle format specification
 	switch value {
-	case "yaml", "json":
+	case "yaml", "json", "html":
 		o.Format = value
 	default:
-		return fmt.Errorf("invalid output format: %s (must be yaml, json, or path=<filepath>)", value)
+		return fmt.Errorf("invalid output format: %s (must be yaml, json, html, or path=<filepath>)", value)
 	}
 
 	return nil
@@ -53,7 +57,7 @@ func (o *OutputFormat) Decode(ctx *kong.DecodeContext) error {
 // CLI represents the command-line interface structure
 var CLI struct {
 	Pattern string       `arg:"" optional:"" help:"File path or glob pattern for XRD files (e.g., 'xrd.yaml' or 'xrds/*.yaml')" type:"path"`
-	Output  OutputFormat `help:"Output format and destination. Can be 'yaml', 'json', or 'path=/path/to/file'" short:"o"`
+	Output  OutputFormat `help:"Output format and destination. Can be 'yaml', 'json', 'html', or 'path=/path/to/file'" short:"o"`
 	Stdout  bool         `help:"Force output to stdout even if output file is specified" short:"s"`
 	Version bool         `help:"Show version information" short:"v"`
 }
@@ -135,21 +139,38 @@ func Main(v, c, d string) {
 			outputPath = fmt.Sprintf("%s-%d%s", base, len(matches), ext)
 		}
 
-		if err := fileio.WriteToFile(allCRDs, outputPath, CLI.Output.Format == "json"); err != nil {
-			fmt.Printf("Error writing to file %s: %v\n", outputPath, err)
-			os.Exit(1)
+		switch CLI.Output.Format {
+		case "html":
+			if err := docs.GenerateHTML(allCRDs, outputPath); err != nil {
+				fmt.Printf("Error generating HTML documentation: %v\n", err)
+				os.Exit(1)
+			}
+		default:
+			if err := fileio.WriteToFile(allCRDs, outputPath, CLI.Output.Format == "json"); err != nil {
+				fmt.Printf("Error writing to file %s: %v\n", outputPath, err)
+				os.Exit(1)
+			}
 		}
 
 		// Print to stdout as well if requested
 		if CLI.Stdout {
-			if output, err := fileio.FormatOutput(allCRDs, CLI.Output.Format == "json"); err != nil {
-				fmt.Printf("Error formatting output: %v\n", err)
+			if CLI.Output.Format == "html" {
+				// For HTML output, we don't print to stdout
+				fmt.Printf("HTML documentation written to %s\n", outputPath)
 			} else {
-				fmt.Println(output)
+				if output, err := fileio.FormatOutput(allCRDs, CLI.Output.Format == "json"); err != nil {
+					fmt.Printf("Error formatting output: %v\n", err)
+				} else {
+					fmt.Println(output)
+				}
 			}
 		}
 	} else {
 		// Print to stdout
+		if CLI.Output.Format == "html" {
+			fmt.Println("Error: HTML output requires an output file path")
+			os.Exit(1)
+		}
 		if output, err := fileio.FormatOutput(allCRDs, CLI.Output.Format == "json"); err != nil {
 			fmt.Printf("Error formatting output: %v\n", err)
 		} else {
