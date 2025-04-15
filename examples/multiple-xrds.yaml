@@ -1,0 +1,137 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xpostgresqlinstances.database.example.org
+  labels:
+    app: database
+  annotations:
+    example.org/version: v1.0.0
+spec:
+  group: database.example.org
+  names:
+    kind: XPostgreSQLInstance
+    plural: xpostgresqlinstances
+  claimNames:
+    kind: PostgreSQLInstance
+    plural: postgresqlinstances
+    singular: postgresqlinstance
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                parameters:
+                  type: object
+                  properties:
+                    storageGB:
+                      type: integer
+                      minimum: 10
+                    version:
+                      type: string
+                      enum: ["11", "12", "13", "14"]
+                  required:
+                    - storageGB
+                    - version
+              required:
+                - parameters
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xmysqlinstances.database.example.org
+  labels:
+    app: database
+  annotations:
+    example.org/version: v1.0.0
+spec:
+  group: database.example.org
+  names:
+    kind: XMySQLInstance
+    plural: xmysqlinstances
+  claimNames:
+    kind: MySQLInstance
+    plural: mysqlinstances
+    singular: mysqlinstance
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                parameters:
+                  type: object
+                  properties:
+                    storageGB:
+                      type: integer
+                      minimum: 10
+                    version:
+                      type: string
+                      enum: ["5.7", "8.0"]
+                    engine:
+                      type: string
+                      enum: ["InnoDB", "MyISAM"]
+                  required:
+                    - storageGB
+                    - version
+                    - engine
+              required:
+                - parameters
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xmongodbinstances.database.example.org
+  labels:
+    app: database
+  annotations:
+    example.org/version: v1.0.0
+spec:
+  group: database.example.org
+  names:
+    kind: XMongoDBInstance
+    plural: xmongodbinstances
+  claimNames:
+    kind: MongoDBInstance
+    plural: mongodbinstances
+    singular: mongodbinstance
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                parameters:
+                  type: object
+                  properties:
+                    storageGB:
+                      type: integer
+                      minimum: 10
+                    version:
+                      type: string
+                      enum: ["4.4", "5.0", "6.0"]
+                    replicas:
+                      type: integer
+                      minimum: 1
+                      maximum: 7
+                  required:
+                    - storageGB
+                    - version
+                    - replicas
+              required:
+                - parameters 
